@@ -1,3 +1,5 @@
+🇧🇷 README em português | 🇺🇸 English version coming soon
+
 # Hub de Conteúdo — Automação de Métricas
 
 Sistema que centraliza a produção de conteúdo (YouTube, Instagram, Substack) 
