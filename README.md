@@ -6,9 +6,10 @@ métricas de performance.
 
 ## O problema
 
-56 conteúdos publicados, zero dado de performance capturado. Toda métrica 
-era preenchida manualmente (quando era preenchida) — sem visibilidade real 
-do que funcionava.
+56 conteúdos publicados, zero dado de performance capturado. Toda métrica era preenchida manualmente (quando era preenchida)
+— sem visibilidade real do que funcionava. Rodando a primeira automação, 
+43 desses conteúdos foram processados com sucesso; os outros 3 revelaram um problema real de dado 
+(status "Postado" com data de publicação futura), que ficou visível justamente por causa da automação.
 
 ## A solução (v1.0)
 
