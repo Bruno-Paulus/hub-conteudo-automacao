@@ -1,0 +1,315 @@
+{
+  "name": "YouTube Views-> Notion (V1)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "66d05fee-0095-4829-be35-22f2489cb9b4",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/youtube/v3/videos",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "part",
+              "value": "statistics"
+            },
+            {
+              "name": "key",
+              "value": "AIzaSyDRDFiH_uZ9jmGN-PFoLAf9O0-MdKY42YM"
+            },
+            {
+              "name": "id",
+              "value": "={{ $json.video_id.join(',') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        832,
+        0
+      ],
+      "id": "b673fd4a-2991-48fd-9200-40d7038b31f8",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "38054e54-f0e3-80cf-adca-c08d1be0c9d2",
+          "mode": "list",
+          "cachedResultName": "HUB de Conteúdos",
+          "cachedResultUrl": "https://app.notion.com/p/38054e54f0e380cfadcac08d1be0c9d2"
+        },
+        "returnAll": true,
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Status|multi_select",
+              "condition": "contains",
+              "multiSelectValue": "Postado"
+            },
+            {
+              "key": "Link do YouTube|url",
+              "condition": "is_not_empty"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "89046358-5261-40db-8a1a-ee0d4e514df6",
+      "name": "Get many database pages",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "KMC3lRNgAepv1bGF",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "video_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "ce09ddff-b77b-4b20-bbab-08b324924f8e",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8ee059f1-625b-4dba-a3fe-b9363e7cf9bc",
+              "name": "video_id",
+              "value": "={{ $json.property_link_do_you_tube.includes('shorts/') ? $json.property_link_do_you_tube.split('shorts/')[1].split('?')[0] : $json.property_link_do_you_tube.includes('youtu.be/') ? $json.property_link_do_you_tube.split('youtu.be/')[1].split('?')[0] : $json.property_link_do_you_tube.split('v=')[1].split('&')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a6ed2bb4-379e-464d-a487-6c6cb0f0c5c7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "88152c4e-a423-4785-8239-0b61c1e2fd38",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "id",
+              "field2": "video_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1232,
+        -208
+      ],
+      "id": "59de661e-06c8-4c0c-a4e7-4d92d8193d6d",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Views YouTube|number",
+              "numberValue": "={{ Number($json.statistics.viewCount) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        -208
+      ],
+      "id": "480d13d4-86a8-48ad-9ae9-188531349231",
+      "name": "Update a database page",
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "KMC3lRNgAepv1bGF",
+          "name": "Notion OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many database pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many database pages": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Update a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ab1787d5-c9ac-4549-b6cd-4bcab319d9fc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "309f425c71d143d80cf79aaaa5c03cec89b667d1620599da8d2e35b9a11adf61"
+  },
+  "nodeGroups": [],
+  "id": "cHRlAaIqcuSQUqDV",
+  "tags": []
+}
