@@ -25,6 +25,20 @@ Workflow n8n que roda diariamente:
 - YouTube Data API v3
 - n8n (orquestração)
 
+## Como rodar
+
+1. Importe o arquivo `youtube-views-notion-v1.json` no n8n (Menu → Import from File)
+2. Crie as credenciais necessárias:
+   - **Notion**: conecte via OAuth2 e dê acesso à sua database de conteúdos
+   - **YouTube Data API v3**: gere uma chave em [console.cloud.google.com](https://console.cloud.google.com), ativando a API "YouTube Data API v3"
+3. Ajuste os nomes das propriedades da sua database do Notion nos nodes 
+   "Get many database pages" e "Update a database page" para bater com 
+   os nomes das suas colunas
+4. Ative o workflow (Publish) — ele roda automaticamente todo dia às 6h
+
+
+
+
 ## Próximas versões
 - v1.1: alerta de hiato de publicação
 - v1.2: métricas do Instagram
